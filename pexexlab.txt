@@ -1,0 +1,14 @@
+Tanya Al-Rehani
+604593556
+
+First, I turned logging on for gdb.
+I ran gdb ~eggert/bin64/bin/emacs-24.5.
+I set a breakpoint at Ftimes using "b Ftimes".
+I created the following macro.
+	define a
+		stepi
+		info reg
+	end
+I "set disassemble-next-line on" to automatically dissasemble everything as I stepped through.
+Finally, I "run -batch -eval '(print (* 6997 -4398042316799 179))'" on gdb.
+I stepped through Ftimes and arith_driver, recording every instruction as specified in the lab spec (addresses, instruction, and what registers/memory addresses were altered). Once Ftimes returned, I used the continue call to run the rest of the execution.

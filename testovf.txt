@@ -1,0 +1,12 @@
+O2 vs O2 and fwrapv:
+The O2 version simply clears the return register rax, then returns. It optimizes away the addition and comparison and always returns false.
+Adding frwapv means we can't use the above optimization because overflow is allowed. So, the machine must store long big into a register, and LONG_MAX into another register, then perform the addition, comparison, and set instructions before returning instead of just automatically returning false. 
+
+O2 vs O2 and fsanitize:
+fsanitize=undefined checks for undefined behavior so this compilation causes the assembly to first check for addition overflow. If the overflow exists, the code will call an external __ubsan_handle_add_overflow function that will record the overflow error. Then, it will jump back and perform the add and compare and set instructions normally the way fwrapv would.
+This is different from just using O2, which automatically returns false (0) without checking anything.
+
+O2 frwapv vs O2 fsanitize:
+The difference between these two is that O2 fsanitize will check for overflow, and branch to a different set of instructions if overflow occurs that will perform error logging. It will continue with the add, compare, and set instructions in a similar way to frwapv.
+
+The O2 function returns 0 automatically; however, the fsanitize and fwrapv versions of the assembly will return 1 because they account for overflow. When the addition overflows, these versions of assembly will wrap back around to negative values and become less than LONG_MAX when we get to the comparison. Therefore, they will return true (or 1) instead of false (or 0).
